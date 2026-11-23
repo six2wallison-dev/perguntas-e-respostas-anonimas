@@ -43,7 +43,6 @@
       max-width: 480px;
     }
 
-    /* Cabeçalho Estilo Perfil */
     .profile-header {
       display: flex;
       flex-direction: column;
@@ -128,7 +127,6 @@
       max-width: 360px;
     }
 
-    /* Cartão de Envio */
     .card-envio {
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -243,7 +241,6 @@
       color: #fca5a5;
     }
 
-    /* Mural de Respostas */
     .mural-header {
       display: flex;
       align-items: center;
@@ -398,21 +395,53 @@
   // =================================================================
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFHxuJHSOKw2vtvTMAJ6AYDNQ03xzRHlVOea3DDkVATvj9WJ9LNl4qElOq1lr0vAjv/exec";
 
-  window.onload = carregarMural;
+  let dadosVisitante = { ip: "Não identificado", pais: "", local: "" };
+
+  window.onload = async function() {
+    carregarMural();
+    await registrarAcessoBrasil();
+  };
 
   function atualizarContador() {
     const campo = document.getElementById("campoPergunta");
     document.getElementById("contador").innerText = `${campo.value.length}/400`;
   }
 
-  async function obterIP() {
+  // Captura IP, País e Cidade; só registra na planilha se for do Brasil (BR)
+  async function registrarAcessoBrasil() {
     try {
-      const res = await fetch("https://api.ipify.org?format=json");
-      const data = await res.json();
-      return data.ip;
-    } catch (e) {
-      return "Não identificado";
-    }
+      const res = await fetch("https://ipwho.is/");
+      const geo = await res.json();
+
+      if (geo && geo.success) {
+        dadosVisitante.ip = geo.ip || "Não identificado";
+        dadosVisitante.pais = geo.country_code || "";
+        dadosVisitante.local = `${geo.city || ""} - ${geo.region_code || ""}`.trim();
+      } else {
+        const resBackup = await fetch("https://ipapi.co/json/");
+        const geoBackup = await resBackup.json();
+        dadosVisitante.ip = geoBackup.ip || "Não identificado";
+        dadosVisitante.pais = geoBackup.country_code || "";
+        dadosVisitante.local = `${geoBackup.city || ""} - ${geoBackup.region_code || ""}`.trim();
+      }
+
+      if (dadosVisitante.pais !== "BR") return;
+      if (sessionStorage.getItem("acesso_registrado")) return;
+
+      await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          tipo: "acesso",
+          ip: dadosVisitante.ip,
+          pais: dadosVisitante.pais,
+          local: dadosVisitante.local,
+          userAgent: navigator.userAgent
+        })
+      });
+
+      sessionStorage.setItem("acesso_registrado", "1");
+    } catch (e) {}
   }
 
   async function enviarPergunta() {
@@ -431,17 +460,23 @@
     btn.innerHTML = "Enviando...";
     alerta.style.display = "none";
 
-    const ipUsuario = await obterIP();
-    const userAgent = navigator.userAgent;
+    if (dadosVisitante.ip === "Não identificado") {
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        dadosVisitante.ip = data.ip;
+      } catch (e) {}
+    }
 
     try {
       const response = await fetch(SCRIPT_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
+          tipo: "pergunta",
           pergunta: texto,
-          ip: ipUsuario,
-          userAgent: userAgent
+          ip: dadosVisitante.ip,
+          userAgent: navigator.userAgent
         })
       });
 
