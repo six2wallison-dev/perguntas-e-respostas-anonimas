@@ -216,26 +216,66 @@
       color: var(--text-muted);
     }
 
-    .status-alerta {
+    /* Tela de confirmação "Enviado!" estilo NGL */
+    .tela-enviado {
+      display: none;
+      text-align: center;
+      padding: 24px 12px 12px;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .check-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.15);
+      border: 2px solid #22c55e;
+      color: #4ade80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px;
+      box-shadow: 0 0 25px rgba(34, 197, 94, 0.25);
+    }
+
+    .tela-enviado h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .tela-enviado p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+
+    .btn-nova-pergunta {
+      width: 100%;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-nova-pergunta:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .status-erro {
       margin-top: 14px;
       padding: 12px 14px;
       border-radius: 12px;
       font-size: 0.88rem;
-      line-height: 1.4;
       text-align: center;
       display: none;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .status-sucesso {
-      display: block;
-      background: rgba(34, 197, 94, 0.12);
-      border: 1px solid rgba(34, 197, 94, 0.25);
-      color: #86efac;
-    }
-
-    .status-erro {
-      display: block;
       background: rgba(239, 68, 68, 0.12);
       border: 1px solid rgba(239, 68, 68, 0.25);
       color: #fca5a5;
@@ -358,25 +398,38 @@
   </div>
 
   <div class="card-envio">
-    <div class="textarea-wrapper">
-      <textarea id="campoPergunta" placeholder="Escreva sua dúvida, curiosidade ou opinião sincera..." maxlength="400" oninput="atualizarContador()"></textarea>
-      <div class="textarea-footer">
-        <span>Modo anônimo ativo</span>
-        <span id="contador">0/400</span>
+    <!-- Formulário de envio -->
+    <div id="areaFormulario">
+      <div class="textarea-wrapper">
+        <textarea id="campoPergunta" placeholder="Escreva sua dúvida, curiosidade ou opinião sincera..." maxlength="400" oninput="atualizarContador()"></textarea>
+        <div class="textarea-footer">
+          <span>Modo anônimo ativo</span>
+          <span id="contador">0/400</span>
+        </div>
       </div>
+
+      <button id="btnEnviar" class="btn-enviar" onclick="enviarPergunta()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        Enviar anonimamente
+      </button>
+
+      <div class="garantia-rodape">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        O Wallison não saberá quem enviou
+      </div>
+
+      <div id="alertaErro" class="status-erro"></div>
     </div>
 
-    <button id="btnEnviar" class="btn-enviar" onclick="enviarPergunta()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-      Enviar anonimamente
-    </button>
-
-    <div class="garantia-rodape">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-      O Wallison não saberá quem enviou
+    <!-- Tela de sucesso após envio -->
+    <div id="telaEnviado" class="tela-enviado">
+      <div class="check-circle">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <h2>Enviado!</h2>
+      <p>Sua mensagem anônima foi entregue ao Wallison.<br>Volte aqui mais tarde para ver a resposta no mural abaixo.</p>
+      <button class="btn-nova-pergunta" onclick="voltarParaFormulario()">Enviar outra pergunta</button>
     </div>
-
-    <div id="alertaStatus" class="status-alerta"></div>
   </div>
 
   <div class="mural-header">
@@ -393,7 +446,7 @@
   // =================================================================
   // COLE AQUI A URL DO SEU GOOGLE APPS SCRIPT (TERMINADA EM /exec)
   // =================================================================
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFHxuJHSOKw2vtvTMAJ6AYDNQ03xzRHlVOea3DDkVATvj9WJ9LNl4qElOq1lr0vAjv/exec";
+  const SCRIPT_URL = "https://six2wallison-dev.github.io/perguntas-e-respostas-anonimas/";
 
   let dadosVisitante = { ip: "Não identificado", pais: "", local: "" };
 
@@ -407,7 +460,37 @@
     document.getElementById("contador").innerText = `${campo.value.length}/400`;
   }
 
-  // Captura IP, País e Cidade; só registra na planilha se for do Brasil (BR)
+  function voltarParaFormulario() {
+    document.getElementById("telaEnviado").style.display = "none";
+    document.getElementById("areaFormulario").style.display = "block";
+    document.getElementById("campoPergunta").focus();
+  }
+
+  // Transforma o User-Agent técnico em uma descrição limpa e legível
+  function identificarDispositivo() {
+    const ua = navigator.userAgent;
+    let sistema = "Desconhecido";
+    let app = "Navegador";
+
+    if (/iPhone/.test(ua)) sistema = "iPhone (iOS)";
+    else if (/iPad/.test(ua)) sistema = "iPad";
+    else if (/Android/.test(ua)) {
+      const match = ua.match(/Android\s[\d.]+;\s([^;)]+)/);
+      sistema = match ? `Android (${match[1].trim()})` : "Android";
+    } else if (/Windows/.test(ua)) sistema = "PC (Windows)";
+    else if (/Mac OS/.test(ua)) sistema = "Mac";
+    else if (/Linux/.test(ua)) sistema = "Linux";
+
+    if (/Instagram/.test(ua)) app = "App Instagram";
+    else if (/FBAN|FBAV/.test(ua)) app = "App Facebook";
+    else if (/WhatsApp/.test(ua)) app = "WhatsApp";
+    else if (/Edg/.test(ua)) app = "Edge";
+    else if (/Chrome/.test(ua)) app = "Chrome";
+    else if (/Safari/.test(ua)) app = "Safari";
+
+    return `${sistema} • ${app}`;
+  }
+
   async function registrarAcessoBrasil() {
     try {
       const res = await fetch("https://ipwho.is/");
@@ -436,7 +519,7 @@
           ip: dadosVisitante.ip,
           pais: dadosVisitante.pais,
           local: dadosVisitante.local,
-          userAgent: navigator.userAgent
+          userAgent: identificarDispositivo()
         })
       });
 
@@ -447,18 +530,18 @@
   async function enviarPergunta() {
     const campo = document.getElementById("campoPergunta");
     const btn = document.getElementById("btnEnviar");
-    const alerta = document.getElementById("alertaStatus");
+    const alertaErro = document.getElementById("alertaErro");
     const texto = campo.value.trim();
 
     if (!texto) {
-      alerta.className = "status-alerta status-erro";
-      alerta.innerText = "Escreva uma pergunta antes de enviar.";
+      alertaErro.style.display = "block";
+      alertaErro.innerText = "Escreva uma pergunta antes de enviar.";
       return;
     }
 
     btn.disabled = true;
     btn.innerHTML = "Enviando...";
-    alerta.style.display = "none";
+    alertaErro.style.display = "none";
 
     if (dadosVisitante.ip === "Não identificado") {
       try {
@@ -476,7 +559,7 @@
           tipo: "pergunta",
           pergunta: texto,
           ip: dadosVisitante.ip,
-          userAgent: navigator.userAgent
+          userAgent: identificarDispositivo()
         })
       });
 
@@ -485,14 +568,14 @@
       if (result.status === "sucesso") {
         campo.value = "";
         atualizarContador();
-        alerta.className = "status-alerta status-sucesso";
-        alerta.innerHTML = "<strong>Pergunta enviada em sigilo!</strong><br>Volte nesta página mais tarde para ver a resposta abaixo.";
+        document.getElementById("areaFormulario").style.display = "none";
+        document.getElementById("telaEnviado").style.display = "block";
       } else {
         throw new Error(result.mensagem || "Erro no servidor");
       }
     } catch (error) {
-      alerta.className = "status-alerta status-erro";
-      alerta.innerText = "Não foi possível enviar agora. Tente novamente em instantes.";
+      alertaErro.style.display = "block";
+      alertaErro.innerText = "Não foi possível enviar agora. Tente novamente em instantes.";
     } finally {
       btn.disabled = false;
       btn.innerHTML = `
@@ -500,6 +583,16 @@
         Enviar anonimamente
       `;
     }
+  }
+
+  function formatarData(valor) {
+    if (!valor) return "";
+    const str = String(valor);
+    if (str.includes("T")) {
+      const d = new Date(str);
+      if (!isNaN(d)) return d.toLocaleDateString("pt-BR");
+    }
+    return str.split(" ")[0];
   }
 
   async function carregarMural() {
@@ -519,7 +612,7 @@
 
       container.innerHTML = "";
       lista.forEach(item => {
-        const dataCurta = item.data ? String(item.data).split(" ")[0] : "";
+        const dataCurta = formatarData(item.data);
 
         const card = document.createElement("div");
         card.className = "card-qa";
