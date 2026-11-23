@@ -216,7 +216,6 @@
       color: var(--text-muted);
     }
 
-    /* Tela de confirmação "Enviado!" estilo NGL */
     .tela-enviado {
       display: none;
       text-align: center;
@@ -398,7 +397,6 @@
   </div>
 
   <div class="card-envio">
-    <!-- Formulário de envio -->
     <div id="areaFormulario">
       <div class="textarea-wrapper">
         <textarea id="campoPergunta" placeholder="Escreva sua dúvida, curiosidade ou opinião sincera..." maxlength="400" oninput="atualizarContador()"></textarea>
@@ -421,7 +419,6 @@
       <div id="alertaErro" class="status-erro"></div>
     </div>
 
-    <!-- Tela de sucesso após envio -->
     <div id="telaEnviado" class="tela-enviado">
       <div class="check-circle">
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -443,9 +440,6 @@
 </div>
 
 <script>
-  // =================================================================
-  // COLE AQUI A URL DO SEU GOOGLE APPS SCRIPT (TERMINADA EM /exec)
-  // =================================================================
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFHxuJHSOKw2vtvTMAJ6AYDNQ03xzRHlVOea3DDkVATvj9WJ9LNl4qElOq1lr0vAjv/exec";
 
   let dadosVisitante = { ip: "Não identificado", pais: "", local: "" };
@@ -466,7 +460,6 @@
     document.getElementById("campoPergunta").focus();
   }
 
-  // Transforma o User-Agent técnico em uma descrição limpa e legível
   function identificarDispositivo() {
     const ua = navigator.userAgent;
     let sistema = "Desconhecido";
